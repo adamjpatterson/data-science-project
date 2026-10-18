@@ -132,12 +132,20 @@ def test_formal_distribution(sources, tmp_path, variant):
         shutil.copytree(sources / "formal_flat_layout/project", project)
         package = "package"
         (project / package / "results/iris.data.pkl").unlink(missing_ok=True)
+        # Simulate a worktree with an existing build artifact. Its contents must
+        # never be selected for installation or overwritten by this test.
+        stale_wheel = project / "dist/previous-0.0.0-py3-none-any.whl"
+        stale_wheel.parent.mkdir(exist_ok=True)
+        stale_wheel.write_bytes(b"previous build artifact")
     else:
         project, package = render(sources, tmp_path, "formal_flat_layout_cookiecutter",
                                   variant == "custom-names")
     # build's default builds the wheel from the sdist, checking both distributions.
-    run(sys.executable, "-m", "build", project, cwd=tmp_path)
-    wheel, = (project / "dist").glob("*.whl")
+    distributions = tmp_path / "distributions"
+    run(sys.executable, "-m", "build", "--outdir", distributions, project, cwd=tmp_path)
+    wheel, = distributions.glob("*.whl")
+    if variant == "example":
+        assert stale_wheel.read_bytes() == b"previous build artifact"
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
         assert f"{package}/methods/notebooks/main.ipynb" in names

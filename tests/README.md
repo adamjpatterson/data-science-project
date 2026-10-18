@@ -10,8 +10,9 @@ python -m venv /tmp/data-science-project-tests
 
 The suite renders both Cookiecutter templates with default and custom names,
 executes their notebooks, and builds and installs the formal projects in separate
-virtual environments. Wheels are built from source distributions, then replaced
-with editable installs to check the documented development workflow. Notebook
+virtual environments. Builds use a separate temporary output directory so existing
+`dist` artifacts cannot interfere. Wheels are built from source distributions,
+then replaced with editable installs to check the documented development workflow. Notebook
 checks verify the resulting data and paths as well as successful execution.
 The formal example pipeline must regenerate its Iris output from the bundled
 data when the output is missing or damaged. Source branches and their existing
