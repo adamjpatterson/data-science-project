@@ -14,7 +14,8 @@ virtual environments. Wheels are built from source distributions, then replaced
 with editable installs to check the documented development workflow. Notebook
 checks verify the resulting data and paths as well as successful execution.
 The formal example pipeline must regenerate its Iris output from the bundled
-data. Source branches and their existing notebook outputs are never modified.
+data when the output is missing or damaged. Source branches and their existing
+notebook outputs are never modified.
 
 By default, tests export the three template/example branches from local
 `origin/*` refs (falling back to local branches when a remote ref is absent).

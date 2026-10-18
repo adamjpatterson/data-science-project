@@ -165,6 +165,12 @@ print(json.dumps(str(METHODS_PATH.parent)))
         assert len(rows) == 150
         assert all(len(row) == 5 for row in rows)
 
+        # A failed previous run must not prevent the pipeline from regenerating data.
+        result.write_bytes(b"incomplete previous output")
+        run(python, "-m", package, cwd=outside, env=env)
+        with result.open("rb") as stream:
+            assert pickle.load(stream) == expected
+
     # The documented development workflow uses an editable install. Verify it
     # replaces the wheel and resolves imports to the source from an unrelated cwd.
     run(python, "-m", "pip", "install", "--no-deps", "--editable", project,
