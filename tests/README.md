@@ -15,7 +15,9 @@ with editable installs to check the documented development workflow. Notebook
 checks verify the resulting data and paths as well as successful execution.
 The formal example pipeline must regenerate its Iris output from the bundled
 data when the output is missing or damaged. Source branches and their existing
-notebook outputs are never modified.
+notebook outputs are never modified. Regression checks also cover quoted,
+backslash-containing, and multiline Unicode metadata, plus dataset files with
+or without a final newline or blank line.
 
 By default, tests export the three template/example branches from local
 `origin/*` refs (falling back to local branches when a remote ref is absent).

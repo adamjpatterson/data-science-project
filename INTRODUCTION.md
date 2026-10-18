@@ -206,7 +206,8 @@ import pickle
 # Read `iris.data` from the MATERIALS_PATH.
 data = [
     line.strip().split(",")
-    for line in open(MATERIALS_PATH.joinpath("iris/iris.data")).readlines()[:-1]
+    for line in MATERIALS_PATH.joinpath("iris/iris.data").read_text().splitlines()
+    if line.strip()
 ]
 
 # Write the `iris.data.pkl` table to RESULTS_PATH.

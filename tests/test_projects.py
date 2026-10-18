@@ -1,4 +1,6 @@
 """Integration checks for the repository's three project branches."""
+import contextlib
+import io
 import json
 import os
 from pathlib import Path
@@ -7,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tomllib
 import venv
 import zipfile
 
@@ -54,10 +57,15 @@ def sources(tmp_path_factory):
     return root
 
 
-def render(sources, tmp_path, branch, custom):
+def render(sources, tmp_path, branch, custom, extra_context=None):
     context = {"project_name": "custom-project"} if custom else {}
     if custom and branch == "formal_flat_layout_cookiecutter":
-        context["package_name"] = "custom_package"
+        context.update({
+            "package_name": "custom_package",
+            "package_description": 'A "quoted" study using C:\\data',
+            "author_name": 'Alice "AJ" Jones',
+        })
+    context.update(extra_context or {})
     project = Path(cookiecutter(
         str(sources / branch), no_input=True, extra_context=context,
         output_dir=str(tmp_path),
@@ -183,3 +191,43 @@ assert Path({package}.__file__).resolve().parent == Path(sys.argv[1]).resolve()
 """, project / package, cwd=outside, env=env)
     execute_notebook(python, env, project / package / "methods/notebooks/main.ipynb",
                      outside, checks)
+
+
+@pytest.mark.parametrize("value", [
+    'A "quoted" value',
+    r"C:\new\trials",
+    "First line\nSecond line\tRésumé 🧪",
+], ids=["quotes", "backslashes", "multiline-unicode"])
+def test_template_metadata_round_trip(sources, tmp_path, value):
+    context = dict.fromkeys(
+        ("author_name", "author_email", "package_description", "repository_url"), value,
+    )
+    project, _ = render(sources, tmp_path, "formal_flat_layout_cookiecutter", False, context)
+    metadata = tomllib.loads((project / "pyproject.toml").read_text())["project"]
+    assert metadata["authors"] == [{"name": value, "email": value}]
+    assert metadata["description"] == value
+    assert metadata["urls"] == {"Homepage": value, "Issues": value + "/issues"}
+
+
+@pytest.mark.parametrize("ending", ["\n\n", "\n", ""],
+                         ids=["blank-line", "newline", "no-newline"])
+def test_iris_input_line_endings(sources, tmp_path, ending):
+    package = sources / "formal_flat_layout/project/package"
+    original = (package / "materials/iris/iris.data").read_text()
+    expected = [line.strip().split(",") for line in original.splitlines() if line.strip()]
+    materials = tmp_path / "materials"
+    (materials / "iris").mkdir(parents=True)
+    results = tmp_path / "results"
+    results.mkdir()
+    (materials / "iris/iris.data").write_text(original.rstrip("\n") + ending)
+    notebook = json.loads((package / "methods/notebooks/main.ipynb").read_text())
+    # Exercise the real data-processing cell without starting another kernel.
+    cell, = ["".join(cell["source"]) for cell in notebook["cells"]
+             if "pickle.dump" in "".join(cell["source"])]
+    namespace = {"MATERIALS_PATH": materials, "RESULTS_PATH": results}
+    with contextlib.redirect_stdout(io.StringIO()):
+        exec(compile(cell, "Iris data-processing cell", "exec"), namespace)
+    assert namespace["data"] == expected
+    assert len(namespace["data"]) == 150
+    with (results / "iris.data.pkl").open("rb") as stream:
+        assert pickle.load(stream) == expected
