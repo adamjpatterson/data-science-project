@@ -93,13 +93,15 @@ def install_notebook_tools(python, env, tmp_path, *packages):
         "--name", "python3", cwd=tmp_path, env=env)
 
 
-def execute_notebook(python, env, notebook, cwd):
+def execute_notebook(python, env, notebook, cwd, checks=""):
     run(python, "-c", """
 import nbformat, sys
 from nbclient import NotebookClient
 nb = nbformat.read(sys.argv[1], as_version=4)
+if sys.argv[2]:
+    nb.cells.append(nbformat.v4.new_code_cell(sys.argv[2]))
 NotebookClient(nb, timeout=120, kernel_name='python3').execute()
-""", notebook, cwd=cwd, env=env)
+""", notebook, checks, cwd=cwd, env=env)
 
 
 @pytest.mark.parametrize("custom", [False, True], ids=["defaults", "custom-names"])
@@ -109,7 +111,10 @@ def test_informal_template(sources, tmp_path, custom):
         assert (project / name / "README.md").is_file()
     python, env = environment(tmp_path)
     install_notebook_tools(python, env, tmp_path)
-    execute_notebook(python, env, project / "methods/main.ipynb", project / "methods")
+    execute_notebook(
+        python, env, project / "methods/main.ipynb", project / "methods",
+        "assert all(p.is_dir() for p in (MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))",
+    )
 
 
 @pytest.mark.parametrize("variant", ["example", "defaults", "custom-names"])
@@ -146,7 +151,8 @@ print(json.dumps(str(METHODS_PATH.parent)))
 """, cwd=outside, env=env)
     installed = Path(json.loads(output.strip()))
     assert installed.is_relative_to(python.parent.parent)
-    execute_notebook(python, env, installed / "methods/notebooks/main.ipynb", outside)
+    checks = "assert iris == data and len(iris) == 150" if variant == "example" else ""
+    execute_notebook(python, env, installed / "methods/notebooks/main.ipynb", outside, checks)
     if variant == "example":
         result = installed / "results/iris.data.pkl"
         result.unlink()  # The pipeline itself must recreate the output.
@@ -158,3 +164,16 @@ print(json.dumps(str(METHODS_PATH.parent)))
         assert rows == expected
         assert len(rows) == 150
         assert all(len(row) == 5 for row in rows)
+
+    # The documented development workflow uses an editable install. Verify it
+    # replaces the wheel and resolves imports to the source from an unrelated cwd.
+    run(python, "-m", "pip", "install", "--no-deps", "--editable", project,
+        cwd=outside, env=env)
+    run(python, "-c", f"""
+from pathlib import Path
+import sys
+import {package}
+assert Path({package}.__file__).resolve().parent == Path(sys.argv[1]).resolve()
+""", project / package, cwd=outside, env=env)
+    execute_notebook(python, env, project / package / "methods/notebooks/main.ipynb",
+                     outside, checks)
