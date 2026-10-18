@@ -90,6 +90,7 @@ In this example you will clone the repository, explore its layout, install it, a
 
 ```bash
 git clone https://github.com/adamjpatterson/data-science-project.git
+cd data-science-project
 ```
 
 #### Checkout the branch.
@@ -102,7 +103,7 @@ git checkout formal_flat_layout
 
 This is the top-level directory of a conventional Python package.
 ```bash
-cd data-science-project/project
+cd project
 ```
 
 #### The directory structure looks like this.
@@ -305,7 +306,7 @@ python -m <your-package-name>
 
 ### Example
 
-The [`__main__.py`](https://github.com/adamjpatterson/data-science-project/blob/main/project/package/__main__.py) module in this repository shows how you can use [papermill](https://papermill.readthedocs.io/en/latest/index.html) to easily construct a notebook pipeline.
+The [`__main__.py`](https://github.com/adamjpatterson/data-science-project/blob/formal_flat_layout/project/package/__main__.py) module in this repository shows how you can use [papermill](https://papermill.readthedocs.io/en/latest/index.html) to easily construct a notebook pipeline.
 
 ### Publish your package
 
@@ -313,10 +314,10 @@ You can publish your package by following the instructions in the [tutorial](htt
 
 ## Support
 
-If you have a feature request or run into any issues, feel free to submit an [issue](https://github.com/adamjpatterson/data-science-project/issues) or start a [discussion](https://github.com/adamjpatterson/data-science-project/discussions). You’re also welcome to reach out directly to one of the authors.
+If you have a feature request or run into any issues, feel free to submit an [issue](https://github.com/adamjpatterson/data-science-project/issues). You’re also welcome to reach out directly to one of the authors.
 
 - [Adam Patterson](https://github.com/adamjpatterson)
 
 ## Development checks
 
-See [the integration test instructions](tests/README.md) for testing both Cookiecutter templates and the formal example across the project branches.
+See [the integration test instructions](https://github.com/adamjpatterson/data-science-project/blob/main/tests/README.md) for testing both Cookiecutter templates and the formal example across the project branches.
