@@ -1,14 +1,22 @@
+{# Escape TOML basic strings while preserving Unicode characters. #}
+{%- macro toml_string(value) -%}
+{%- set escaped = namespace(value=value | replace('\\', '\\\\') | replace('"', '\\"')) -%}
+{%- for codepoint in (range(32) | list) + [127] -%}
+{%- set escaped.value = escaped.value | replace('%c' | format(codepoint), '\\u%04x' | format(codepoint)) -%}
+{%- endfor -%}
+"{{ escaped.value }}"
+{%- endmacro -%}
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "{{cookiecutter.package_name}}"
+name = {{ toml_string(cookiecutter.package_name) }}
 dynamic = ["version"]
 authors = [
-  { name="{{cookiecutter.author_name}}", email="{{cookiecutter.author_email}}" },
+  { name={{ toml_string(cookiecutter.author_name) }}, email={{ toml_string(cookiecutter.author_email) }} },
 ]
-description = "{{cookiecutter.package_description}}"
+description = {{ toml_string(cookiecutter.package_description) }}
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -22,8 +30,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "{{cookiecutter.repository_url}}"
-Issues = "{{cookiecutter.repository_url}}/issues"
+Homepage = {{ toml_string(cookiecutter.repository_url) }}
+Issues = {{ toml_string(cookiecutter.repository_url ~ "/issues") }}
 
 [tool.hatch.version]
 path = "__about__.py"
