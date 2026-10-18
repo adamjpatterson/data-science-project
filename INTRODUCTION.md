@@ -248,7 +248,7 @@ cookiecutter https://github.com/adamjpatterson/data-science-project.git --checko
   [5/6] author_name (Example Author): Example Author
   [6/6] author_email (author@example.com): author@example.com
 ```
-You can give your project and package the same name.
+The project directory name can contain dashes, such as `my-project`. Use a valid Python import name for `package_name`, such as `my_project`, with underscores instead of dashes. You can give both the same name when it is a valid Python import name.
 
 #### Change directory into the repository's project directory.
 
@@ -301,7 +301,7 @@ pip install -e .
 
 You can use `__main__.py` in order to define your project's pipeline.  Once your package is installed and your pipeline is defined in your `__main__.py` module, you can run your package's pipeline using the `-m` option.
 ```bash
-python -m <your-package-name>
+python -m <your_package_name>
 ```
 
 ### Example
