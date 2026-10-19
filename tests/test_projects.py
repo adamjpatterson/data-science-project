@@ -87,6 +87,7 @@ def environment(tmp_path):
     env = dict(os.environ)
     env.pop("PYTHONPATH", None)
     env.pop("PYTHONHOME", None)
+    env.pop("DATA_SCIENCE_PROJECT_ROOT", None)
     env["PATH"] = f"{root / 'bin'}{os.pathsep}{env.get('PATH', '')}"
     env["JUPYTER_PATH"] = str(root / "share/jupyter")
     env["JUPYTER_CONFIG_DIR"] = str(tmp_path / "jupyter-config")
@@ -125,22 +126,43 @@ def test_informal_template(sources, tmp_path, custom):
     )
 
 
+def assert_paths(python, env, cwd, package, project, code_dir):
+    run(python, "-c", f"""
+from pathlib import Path
+import sys
+import {package}
+from {package}.paths import PROJECT_ROOT, MATERIALS_PATH, METHODS_PATH, RESULTS_PATH
+root = Path(sys.argv[1]).resolve()
+assert PROJECT_ROOT == root
+assert (MATERIALS_PATH, METHODS_PATH, RESULTS_PATH) == tuple(root / name for name in ('materials', 'methods', 'results'))
+assert Path({package}.__file__).resolve().parent == Path(sys.argv[2]).resolve()
+""", project, code_dir, cwd=cwd, env=env)
+
+
+def assert_path_error(python, env, cwd, package, message):
+    result = subprocess.run([str(python), "-c", f"from {package}.paths import PROJECT_ROOT"],
+                            cwd=cwd, env=env, capture_output=True, text=True, timeout=30)
+    assert result.returncode != 0
+    assert message in result.stderr, result.stderr
+
+
 @pytest.mark.parametrize("variant", ["example", "defaults", "custom-names"])
 def test_formal_distribution(sources, tmp_path, variant):
     if variant == "example":
         project = tmp_path / "project"
         shutil.copytree(sources / "formal_flat_layout/project", project)
         package = "package"
-        (project / package / "results/iris.data.pkl").unlink(missing_ok=True)
-        # Simulate a worktree with an existing build artifact. Its contents must
-        # never be selected for installation or overwritten by this test.
         stale_wheel = project / "dist/previous-0.0.0-py3-none-any.whl"
         stale_wheel.parent.mkdir(exist_ok=True)
         stale_wheel.write_bytes(b"previous build artifact")
     else:
         project, package = render(sources, tmp_path, "formal_flat_layout_cookiecutter",
                                   variant == "custom-names")
-    # build's default builds the wheel from the sdist, checking both distributions.
+    for name in ("materials", "methods", "results"):
+        assert (project / name / "README.md").is_file()
+        assert not (project / name / "__init__.py").exists()
+    assert (project / "methods" / package / "paths.py").is_file()
+    # Build the wheel from the sdist, in a clean output directory.
     distributions = tmp_path / "distributions"
     run(sys.executable, "-m", "build", "--outdir", distributions, project, cwd=tmp_path)
     wheel, = distributions.glob("*.whl")
@@ -148,57 +170,66 @@ def test_formal_distribution(sources, tmp_path, variant):
         assert stale_wheel.read_bytes() == b"previous build artifact"
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
-        assert f"{package}/methods/notebooks/main.ipynb" in names
-        if variant == "example":
-            assert f"{package}/materials/iris/iris.data" in names
-            assert f"{package}/results/iris.data.pkl" not in names
+        assert f"{package}/paths.py" in names
+        assert f"{package}/__main__.py" in names
+        assert all(name.startswith((package + "/",)) or ".dist-info/" in name for name in names)
+        assert not any(name.endswith((".ipynb", ".pkl", ".data")) for name in names)
+        assert not any(name.startswith(f"{package}/{section}/") for name in names
+                       for section in ("materials", "methods", "results"))
     python, env = environment(tmp_path)
     install_notebook_tools(python, env, tmp_path, wheel)
     outside = tmp_path / "outside"
     outside.mkdir()
-    output = run(python, "-c", f"""
-import json
-import {package}
-from {package}.materials import MATERIALS_PATH
-from {package}.methods import METHODS_PATH
-from {package}.results import RESULTS_PATH
-assert all(p.is_dir() for p in (MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))
-print(json.dumps(str(METHODS_PATH.parent)))
-""", cwd=outside, env=env)
-    installed = Path(json.loads(output.strip()))
-    assert installed.is_relative_to(python.parent.parent)
-    checks = "assert iris == data and len(iris) == 150" if variant == "example" else ""
-    execute_notebook(python, env, installed / "methods/notebooks/main.ipynb", outside, checks)
-    if variant == "example":
-        result = installed / "results/iris.data.pkl"
-        result.unlink()  # The pipeline itself must recreate the output.
-        run(python, "-m", package, cwd=outside, env=env)
-        with result.open("rb") as stream:
-            rows = pickle.load(stream)
-        expected = [line.split(",") for line in
-                    (installed / "materials/iris/iris.data").read_text().splitlines() if line]
-        assert rows == expected
-        assert len(rows) == 150
-        assert all(len(row) == 5 for row in rows)
+    code_dir = Path(run(python, "-c", f"import {package}; from pathlib import Path; print(Path({package}.__file__).parent)",
+                        cwd=outside, env=env).strip())
+    assert code_dir.is_relative_to(python.parent.parent)
+    # A wheel must not guess a workspace from cwd, even when cwd is a project.
+    assert_path_error(python, env, project, package, "DATA_SCIENCE_PROJECT_ROOT")
+    run(python, "-m", package, "--help", cwd=outside, env=env)
+    for configured, message in [("", "absolute"), ("relative", "absolute"),
+                                 (str(tmp_path / "missing"), "must contain")]:
+        assert_path_error(python, dict(env, DATA_SCIENCE_PROJECT_ROOT=configured),
+                          outside, package, message)
 
-        # A failed previous run must not prevent the pipeline from regenerating data.
-        result.write_bytes(b"incomplete previous output")
-        run(python, "-m", package, cwd=outside, env=env)
+    workspace = tmp_path / "separate-study"
+    for name in ("materials", "methods", "results"):
+        shutil.copytree(project / name, workspace / name)
+    # This workspace contains no source package or pyproject: only study assets.
+    shutil.rmtree(workspace / "methods" / package)
+    configured = dict(env, DATA_SCIENCE_PROJECT_ROOT=str(workspace))
+    assert_paths(python, configured, outside, package, workspace, code_dir)
+    checks = "assert all(p.is_dir() for p in (MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))"
+    if variant == "example":
+        checks += "\nassert iris == data and len(iris) == 150"
+    execute_notebook(python, configured, workspace / "methods/notebooks/main.ipynb", outside, checks)
+    # The CLI overrides even an invalid environment setting before importing paths.
+    run(python, "-m", package, "--project-dir", "../separate-study", cwd=outside,
+        env=dict(env, DATA_SCIENCE_PROJECT_ROOT=str(tmp_path / "invalid")))
+    if variant == "example":
+        result = workspace / "results/iris.data.pkl"
+        expected = [line.strip().split(",") for line in
+                    (workspace / "materials/iris/iris.data").read_text().splitlines() if line.strip()]
         with result.open("rb") as stream:
             assert pickle.load(stream) == expected
+        assert not (project / "results/iris.data.pkl").exists()
+        for damaged in (False, True):
+            if damaged:
+                result.write_bytes(b"incomplete previous output")
+            else:
+                result.unlink()
+            run(python, "-m", package, cwd=outside, env=configured)
+            with result.open("rb") as stream:
+                assert pickle.load(stream) == expected
 
-    # The documented development workflow uses an editable install. Verify it
-    # replaces the wheel and resolves imports to the source from an unrelated cwd.
-    run(python, "-m", "pip", "install", "--no-deps", "--editable", project,
-        cwd=outside, env=env)
-    run(python, "-c", f"""
-from pathlib import Path
-import sys
-import {package}
-assert Path({package}.__file__).resolve().parent == Path(sys.argv[1]).resolve()
-""", project / package, cwd=outside, env=env)
-    execute_notebook(python, env, project / package / "methods/notebooks/main.ipynb",
-                     outside, checks)
+    # Editable installs discover their source workspace from any current directory.
+    run(python, "-m", "pip", "install", "--no-deps", "--editable", project, cwd=outside, env=env)
+    source_code = project / "methods" / package
+    assert_paths(python, env, outside, package, project, source_code)
+    assert_paths(python, configured, outside, package, workspace, source_code)
+    assert_path_error(python, dict(env, DATA_SCIENCE_PROJECT_ROOT=str(tmp_path / "invalid")),
+                      outside, package, "must contain")
+    execute_notebook(python, env, project / "methods/notebooks/main.ipynb", outside, checks)
+    run(python, "-m", package, cwd=outside, env=env)
 
 
 @pytest.mark.parametrize("value", [
@@ -220,7 +251,7 @@ def test_template_metadata_round_trip(sources, tmp_path, value):
 @pytest.mark.parametrize("ending", ["\n\n", "\n", ""],
                          ids=["blank-line", "newline", "no-newline"])
 def test_iris_input_line_endings(sources, tmp_path, ending):
-    package = sources / "formal_flat_layout/project/package"
+    package = sources / "formal_flat_layout/project"
     original = (package / "materials/iris/iris.data").read_text()
     expected = [line.strip().split(",") for line in original.splitlines() if line.strip()]
     materials = tmp_path / "materials"

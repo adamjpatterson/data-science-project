@@ -9,11 +9,16 @@ python -m venv /tmp/data-science-project-tests
 ```
 
 The suite renders both Cookiecutter templates with default and custom names,
-executes their notebooks, and builds and installs the formal projects in separate
+executes their notebooks, and builds and installs the formal packages in separate
 virtual environments. Builds use a separate temporary output directory so existing
 `dist` artifacts cannot interfere. Wheels are built from source distributions,
 then replaced with editable installs to check the documented development workflow. Notebook
-checks verify the resulting data and paths as well as successful execution.
+checks verify the resulting data and workspace paths as well as successful execution.
+Wheel checks confirm that study assets are excluded, require an explicit workspace,
+and execute notebooks in a separate study without a source package. Editable
+installs must discover their own workspace from an unrelated current directory.
+Tests also cover invalid and overriding environment settings, CLI precedence,
+and configurable package names.
 The formal example pipeline must regenerate its Iris output from the bundled
 data when the output is missing or damaged. Source branches and their existing
 notebook outputs are never modified. Regression checks also cover quoted,
