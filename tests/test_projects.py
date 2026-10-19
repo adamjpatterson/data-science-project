@@ -1,10 +1,6 @@
-"""Integration checks for the repository's three project branches."""
-import contextlib
-import io
-import json
+"""Integration checks for the repository's two Cookiecutter templates."""
 import os
 from pathlib import Path
-import pickle
 import shutil
 import subprocess
 import sys
@@ -18,7 +14,6 @@ from cookiecutter.main import cookiecutter
 
 REPO = Path(__file__).resolve().parents[1]
 BRANCHES = (
-    "formal_flat_layout",
     "formal_flat_layout_cookiecutter",
     "informal_layout_cookiecutter",
 )
@@ -118,11 +113,12 @@ def test_informal_template(sources, tmp_path, custom):
     project, _ = render(sources, tmp_path, "informal_layout_cookiecutter", custom)
     for name in ("materials", "methods", "results"):
         assert (project / name / "README.md").is_file()
+    assert (project / "requirements.txt").is_file()
     python, env = environment(tmp_path)
     install_notebook_tools(python, env, tmp_path)
     execute_notebook(
         python, env, project / "methods/main.ipynb", project / "methods",
-        "assert all(p.is_dir() for p in (MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))",
+        "assert all(p.is_absolute() and p.is_dir() for p in (PROJECT_ROOT, MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))",
     )
 
 
@@ -146,18 +142,13 @@ def assert_path_error(python, env, cwd, package, message):
     assert message in result.stderr, result.stderr
 
 
-@pytest.mark.parametrize("variant", ["example", "defaults", "custom-names"])
+@pytest.mark.parametrize("variant", ["defaults", "custom-names"])
 def test_formal_distribution(sources, tmp_path, variant):
-    if variant == "example":
-        project = tmp_path / "project"
-        shutil.copytree(sources / "formal_flat_layout/project", project)
-        package = "package"
-        stale_wheel = project / "dist/previous-0.0.0-py3-none-any.whl"
-        stale_wheel.parent.mkdir(exist_ok=True)
-        stale_wheel.write_bytes(b"previous build artifact")
-    else:
-        project, package = render(sources, tmp_path, "formal_flat_layout_cookiecutter",
-                                  variant == "custom-names")
+    project, package = render(sources, tmp_path, "formal_flat_layout_cookiecutter",
+                              variant == "custom-names")
+    stale_wheel = project / "dist/previous-0.0.0-py3-none-any.whl"
+    stale_wheel.parent.mkdir()
+    stale_wheel.write_bytes(b"previous build artifact")
     for name in ("materials", "methods", "results"):
         assert (project / name / "README.md").is_file()
         assert not (project / name / "__init__.py").exists()
@@ -166,8 +157,7 @@ def test_formal_distribution(sources, tmp_path, variant):
     distributions = tmp_path / "distributions"
     run(sys.executable, "-m", "build", "--outdir", distributions, project, cwd=tmp_path)
     wheel, = distributions.glob("*.whl")
-    if variant == "example":
-        assert stale_wheel.read_bytes() == b"previous build artifact"
+    assert stale_wheel.read_bytes() == b"previous build artifact"
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
         assert f"{package}/paths.py" in names
@@ -198,29 +188,11 @@ def test_formal_distribution(sources, tmp_path, variant):
     shutil.rmtree(workspace / "methods" / package)
     configured = dict(env, DATA_SCIENCE_PROJECT_ROOT=str(workspace))
     assert_paths(python, configured, outside, package, workspace, code_dir)
-    checks = "assert all(p.is_dir() for p in (MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))"
-    if variant == "example":
-        checks += "\nassert iris == data and len(iris) == 150"
+    checks = "assert all(p.is_absolute() and p.is_dir() for p in (PROJECT_ROOT, MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))"
     execute_notebook(python, configured, workspace / "methods/notebooks/main.ipynb", outside, checks)
     # The CLI overrides even an invalid environment setting before importing paths.
     run(python, "-m", package, "--project-dir", "../separate-study", cwd=outside,
         env=dict(env, DATA_SCIENCE_PROJECT_ROOT=str(tmp_path / "invalid")))
-    if variant == "example":
-        result = workspace / "results/iris.data.pkl"
-        expected = [line.strip().split(",") for line in
-                    (workspace / "materials/iris/iris.data").read_text().splitlines() if line.strip()]
-        with result.open("rb") as stream:
-            assert pickle.load(stream) == expected
-        assert not (project / "results/iris.data.pkl").exists()
-        for damaged in (False, True):
-            if damaged:
-                result.write_bytes(b"incomplete previous output")
-            else:
-                result.unlink()
-            run(python, "-m", package, cwd=outside, env=configured)
-            with result.open("rb") as stream:
-                assert pickle.load(stream) == expected
-
     # Editable installs discover their source workspace from any current directory.
     run(python, "-m", "pip", "install", "--no-deps", "--editable", project, cwd=outside, env=env)
     source_code = project / "methods" / package
@@ -246,27 +218,3 @@ def test_template_metadata_round_trip(sources, tmp_path, value):
     assert metadata["authors"] == [{"name": value, "email": value}]
     assert metadata["description"] == value
     assert metadata["urls"] == {"Homepage": value, "Issues": value + "/issues"}
-
-
-@pytest.mark.parametrize("ending", ["\n\n", "\n", ""],
-                         ids=["blank-line", "newline", "no-newline"])
-def test_iris_input_line_endings(sources, tmp_path, ending):
-    package = sources / "formal_flat_layout/project"
-    original = (package / "materials/iris/iris.data").read_text()
-    expected = [line.strip().split(",") for line in original.splitlines() if line.strip()]
-    materials = tmp_path / "materials"
-    (materials / "iris").mkdir(parents=True)
-    results = tmp_path / "results"
-    results.mkdir()
-    (materials / "iris/iris.data").write_text(original.rstrip("\n") + ending)
-    notebook = json.loads((package / "methods/notebooks/main.ipynb").read_text())
-    # Exercise the real data-processing cell without starting another kernel.
-    cell, = ["".join(cell["source"]) for cell in notebook["cells"]
-             if "pickle.dump" in "".join(cell["source"])]
-    namespace = {"MATERIALS_PATH": materials, "RESULTS_PATH": results}
-    with contextlib.redirect_stdout(io.StringIO()):
-        exec(compile(cell, "Iris data-processing cell", "exec"), namespace)
-    assert namespace["data"] == expected
-    assert len(namespace["data"]) == 150
-    with (results / "iris.data.pkl").open("rb") as stream:
-        assert pickle.load(stream) == expected
