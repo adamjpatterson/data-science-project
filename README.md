@@ -1,5 +1,14 @@
 # Data Science Project Cookiecutter
 
-## Introduction
+This template creates a study with `materials`, `methods`, and `results` at the
+project root. Organize their contents to suit your study. Reusable Python code
+lives in `methods/package` by default; `package_name` is configurable.
 
-This is the [Cookiecutter](https://cookiecutter.readthedocs.io/en/1.7.2/README.html) for the [Data Science Project](https://github.com/adamjpatterson/data-science-project).
+Install the generated project with `python -m pip install -e .`. Import workspace
+paths from `<package_name>.paths`, and run its main notebook with
+`python -m <package_name>`. An editable install discovers the study automatically;
+installed wheels use `DATA_SCIENCE_PROJECT_ROOT` or `--project-dir` to select it.
+
+See the generated README and the
+[project introduction](https://github.com/adamjpatterson/data-science-project/blob/main/INTRODUCTION.md)
+for details.

@@ -26,7 +26,8 @@ classifiers = [
 ]
 dependencies = [
   "hatch", 
-  "ipykernel"
+  "ipykernel",
+  "papermill"
 ]
 
 [project.urls]
@@ -36,3 +37,6 @@ Issues = {{ toml_string(cookiecutter.repository_url ~ "/issues") }}
 [tool.hatch.version]
 path = "__about__.py"
 
+
+[tool.hatch.build.targets.wheel]
+packages = [{{ toml_string("methods/" ~ cookiecutter.package_name) }}]
