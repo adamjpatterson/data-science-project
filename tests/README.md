@@ -13,7 +13,7 @@ executes their notebooks, and builds and installs the formal packages in separat
 virtual environments. Builds use a separate temporary output directory so existing
 `dist` artifacts cannot interfere. Wheels are built from source distributions,
 then replaced with editable installs to check the documented development workflow. Notebook
-checks verify the resulting data and workspace paths as well as successful execution.
+checks verify workspace paths as well as successful execution.
 Wheel checks confirm that study assets are excluded, require an explicit workspace,
 and execute notebooks in a separate study without a source package. Editable
 installs must discover their own workspace from an unrelated current directory.
