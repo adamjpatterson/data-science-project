@@ -17,7 +17,7 @@ The installable Python package is in `methods/{{cookiecutter.package_name}}/`. I
 project directory with `python -m pip install -e .`, then use:
 
 ```python
-from {{cookiecutter.package_name}}.paths import MATERIALS_PATH, METHODS_PATH, RESULTS_PATH
+from {{cookiecutter.package_name}}.paths import PROJECT_ROOT, MATERIALS_PATH, METHODS_PATH, RESULTS_PATH
 ```
 
 Editable installs locate this workspace automatically, independently of the
