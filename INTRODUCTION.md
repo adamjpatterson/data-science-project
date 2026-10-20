@@ -4,7 +4,7 @@ The [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like Python project templates f
 
 ## Introduction
 
-In the data science domain projects are sometimes shared as an informal assemblage of scripts. This repository proposes two familiar [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like layouts that can be used for organizing a data science project.
+In the data science domain, projects are sometimes shared as an informal assemblage of scripts. This repository proposes two familiar [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like layouts that can be used for organizing a data science project. This approach is aimed at meeting the requirements of a wide range of data science applications while still offering a layout that is immediately recognizable by persons working in the science domains.
 
 The [Formal IMRaD-like Layout](#a-formal-imrad-like-layout) offers an intuitive and familiar project layout. It organizes your project into `materials`, `methods`, and `results` directories. It adds an installable Python package within `methods`, while keeping `materials` and `results` in the project workspace.
 
@@ -26,9 +26,9 @@ This repository provides [Cookiecutter](https://github.com/cookiecutter/cookiecu
 
 ## A formal IMRaD-like layout
 
-The formal layout features `materials`, `methods`, and `results` directories at the project root. Their contents are up to you; no particular data, model, or output subdirectories are specified. This approach accommodates a wide range of data science and statistical methods, while offering a project layout that is instantly recognizable to persons working in the science domains.
+The formal layout features `materials`, `methods`, and `results` directories at the project root. Their contents are up to you; no particular data, model, or output subdirectories are specified. This approach accommodates a wide range of data science and statistical applications, while offering a project layout that is instantly recognizable to persons working in the science domains.
 
-Use the `materials` directory for source data and intermediary datasets. Use the `results` directory for storing the products of your analysis (e.g., datasets, visualizations). The `methods` directory stores your procedures including notebooks and the installable package.
+Use the `materials` directory for source data, intermediary datasets, and models consumed by your analysis. Use the `results` directory for storing the products of your analysis, such as datasets, visualizations, and models. The `methods` directory stores your procedures, including notebooks and the installable package.
 
 ### Features
 
