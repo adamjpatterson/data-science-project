@@ -6,9 +6,14 @@ The [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like Python project templates f
 
 In the data science domain projects are sometimes shared as an informal assemblage of scripts. This repository proposes two familiar [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like layouts that can be used for organizing a data science project.
 
-The [Formal IMRaD-like Layout](#a-formal-imrad-like-layout) offers an intuitive and familiar project layout. It organizes your project into `materials`, `methods`, and `results` directories. It adds an installable Python package within `methods`, while keeping materials and results in the project workspace.
+The [Formal IMRaD-like Layout](#a-formal-imrad-like-layout) offers an intuitive and familiar project layout. It organizes your project into `materials`, `methods`, and `results` directories. It adds an installable Python package within `methods`, while keeping `materials` and `results` in the project workspace.
 
 The [Informal IMRaD-like Layout](#an-informal-imrad-like-layout) is a simple and intuitive non-installable Python project organized into `materials`, `methods`, and `results` directories.
+
+This repository provides [Cookiecutter templates](https://github.com/cookiecutter/cookiecutter) for creating these project layouts:
+
+- [Formal IMRaD-like Layout](#create-a-formal-imrad-like-layout-data-science-project-using-the-cookiecutter)
+- [Informal IMRaD-like Layout](#create-an-informal-imrad-like-layout-data-science-project-using-the-cookiecutter)
 
 ## Table of contents
 
@@ -20,7 +25,9 @@ The [Informal IMRaD-like Layout](#an-informal-imrad-like-layout) is a simple and
 
 ## A formal IMRaD-like layout
 
-The formal layout features `materials`, `methods`, and `results` directories at the project root. Their contents are up to you; no particular data, model, or output subdirectories are specified. This approach accommodates a wide range of data science and statistical methods, while offering a project layout that is instantly recognizable to persons working in the science domain. Reusable Python code lives in an installable package inside `methods`, alongside notebooks and any other methods.
+The formal layout features `materials`, `methods`, and `results` directories at the project root. Their contents are up to you; no particular data, model, or output subdirectories are specified. This approach accommodates a wide range of data science and statistical methods, while offering a project layout that is instantly recognizable to persons working in the science domains.
+
+Use the `materials` directory for source data and intermediary datasets. The products of the analysis (e.g., datasets, visualizations, etc.) can be output into the `results` directory. The `methods` directory stores your procedures including notebooks and the installable package.
 
 ### Features
 
@@ -70,7 +77,7 @@ You can [create a formal layout project using the Cookiecutter](#create-a-formal
     └── README.md ⬅ Put your Introduction and Discussion here.
 ```
 
-`package` is the default Python package name. Cookiecutter lets you choose another name. Installing the package makes its utilities and workspace paths importable without modifying `sys.path` or setting `PYTHONPATH`.
+The default Python package name is `package`. Cookiecutter lets you choose another name. Installing the package makes its utilities and workspace paths importable without modifying `sys.path` or setting `PYTHONPATH`.
 
 ### Workspace paths
 
@@ -98,7 +105,7 @@ This option overrides the environment setting and accepts relative paths as well
 
 ```bash
 python -m pip install cookiecutter
-cookiecutter https://github.com/adamjpatterson/data-science-project.git --checkout formal_flat_layout_cookiecutter
+cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout formal_flat_layout_cookiecutter
 ```
 
 The form lets you configure the project directory, Python package, repository URL, description, and author information:
@@ -122,7 +129,7 @@ python -m pip install -e .
 
 Open `methods/notebooks/main.ipynb` in the same environment. Its first cell imports `PROJECT_ROOT`, `MATERIALS_PATH`, `METHODS_PATH`, and `RESULTS_PATH` from your configured package's `paths` module.
 
-Add dependencies to `pyproject.toml` and rerun the installation command when they change. Put reusable functions in your package and import them into notebooks; notebooks themselves are outside the package and do not need a `__package__` assignment.
+Add dependencies to `pyproject.toml` and rerun the installation command when they change. Put reusable functions in your package and import them into notebooks.
 
 ### Build and distribute the Python code
 
@@ -179,7 +186,7 @@ pip install cookiecutter
 #### Use the Cookiecutter to create an informal IMRaD-like layout project.
 
 ```bash
-cookiecutter https://github.com/adamjpatterson/data-science-project.git --checkout informal_layout_cookiecutter
+cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout informal_layout_cookiecutter
 ```
 
 Open `methods/main.ipynb` with `methods` as the working directory. Its first cell uses `pathlib` to define absolute paths to the project root and its three
@@ -187,7 +194,7 @@ directories; no package installation is needed.
 
 ## Development checks
 
-See [the integration test instructions](https://github.com/adamjpatterson/data-science-project/blob/main/tests/README.md) for testing both Cookiecutter templates across the project branches.
+See [the integration test instructions](https://github.com/adamjpatterson/the-data-science-project/blob/main/tests/README.md) for testing both Cookiecutter templates across the project branches.
 
 ## Other solutions
 
@@ -198,6 +205,6 @@ Other approaches to organizing data science projects include:
 
 ## Support
 
-If you have a feature request or run into any issues, feel free to submit an [issue](https://github.com/adamjpatterson/data-science-project/issues). You’re also welcome to reach out directly to one of the authors.
+If you have a feature request or run into any issues, feel free to submit an [issue](https://github.com/adamjpatterson/the-data-science-project/issues). You’re also welcome to reach out directly to one of the authors.
 
 - [Adam Patterson](https://github.com/adamjpatterson)
