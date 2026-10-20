@@ -229,7 +229,6 @@ See [the integration test instructions](https://github.com/adamjpatterson/the-da
 Other approaches to organizing data science projects include:
 
 - [Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org/): A project template from DrivenData with dedicated directories for data, models, notebooks, and reports, plus configurable development tools.
-- [Kedro](https://kedro.org/): A Python framework with project templates, a data catalog, and tools for building reproducible data pipelines.
 
 ## Support
 
