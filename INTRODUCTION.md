@@ -27,12 +27,12 @@ This repository provides [Cookiecutter templates](https://github.com/cookiecutte
 
 The formal layout features `materials`, `methods`, and `results` directories at the project root. Their contents are up to you; no particular data, model, or output subdirectories are specified. This approach accommodates a wide range of data science and statistical methods, while offering a project layout that is instantly recognizable to persons working in the science domains.
 
-Use the `materials` directory for source data and intermediary datasets. The products of the analysis (e.g., datasets, visualizations, etc.) can be output into the `results` directory. The `methods` directory stores your procedures including notebooks and the installable package.
+Use the `materials` directory for source data and intermediary datasets. Use the `results` directory for storing the products of your analysis (e.g., datasets, visualizations). The `methods` directory stores your procedures including notebooks and the installable package.
 
 ### Features
 
 - A familiar [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like layout.
-- Installable Python package.
+- An installable Python package.
 - A preconfigured `paths` module useful for navigating the project from a notebook.
 
 ### Explore the project layout
@@ -77,34 +77,51 @@ You can [create a formal layout project using the Cookiecutter](#create-a-formal
     └── README.md ⬅ Put your Introduction and Discussion here.
 ```
 
-The default Python package name is `package`. Cookiecutter lets you choose another name. Installing the package makes its utilities and workspace paths importable without modifying `sys.path` or setting `PYTHONPATH`.
+The default Python package name is `package`. You can specify a different package name using the [Cookiecutter](#create-a-formal-imrad-like-layout-data-science-project-using-the-cookiecutter). Installing the package makes its utilities and workspace paths importable without modifying `sys.path` or setting `PYTHONPATH`.
 
 ### Workspace paths
 
 The `package.paths` module exports `PROJECT_ROOT`, `MATERIALS_PATH`, `METHODS_PATH`, and `RESULTS_PATH`. Paths are resolved from the project root and returned as absolute paths, so they work independently of the notebook’s current working directory.
 
-An editable installation automatically locates the source project above `methods/package`. Automatic discovery requires `pyproject.toml` and the three
-workspace directories to exist there. To select another workspace, set this before importing `package.paths` or starting a notebook kernel:
+An editable installation automatically locates the source project above `methods/package`. Automatic discovery requires `pyproject.toml` and the three workspace directories to exist there. To select another workspace, set this before importing `package.paths` or starting a notebook kernel:
 
 ```bash
 export DATA_SCIENCE_PROJECT_ROOT=/absolute/path/to/project
 ```
 
-The selected directory must contain `materials`, `methods`, and `results`. An empty, relative, or invalid environment setting raises a clear error rather
-than selecting a different workspace. Constants are resolved on first import; restart the kernel when changing the selected workspace.
+The selected directory must contain `materials`, `methods`, and `results`. An empty, relative, or invalid environment setting raises a clear error rather than selecting a different workspace. Constants are resolved on first import; restart the kernel when changing the selected workspace.
 
-For a pipeline invocation, you can instead specify:
+### Pipeline invocation
+
+Run the package's `__main__.py` entry point with:
+
+```bash
+python -m package
+```
+
+This calls `main()`, which initially prints the resolved project root. Define your workflow in that function, calling reusable functions from your package. Replace `package` with your configured package name.
+
+Notebooks are run separately; the entry point does not execute them. Notebook execution can be added to your workflow if your project needs it.
+
+To select another project workspace for an invocation, specify:
 
 ```bash
 python -m package --project-dir /path/to/project
 ```
 
-This option overrides the environment setting and accepts relative paths as well. The notebook runs with the selected project as its working directory. The formal template provides this entry point using Papermill.
+This option overrides `DATA_SCIENCE_PROJECT_ROOT` and accepts relative paths. It selects the workspace used by `package.paths` without changing the working directory. Use those absolute paths when reading materials or writing results.
 
 ### Create a formal IMRaD-like layout Data Science Project using the Cookiecutter
 
+Install the Cookiecutter package.
+
 ```bash
 python -m pip install cookiecutter
+```
+
+Use the Cookiecutter to create a formal IMRaD-like layout project.
+
+```bash
 cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout formal_flat_layout_cookiecutter
 ```
 
@@ -119,9 +136,9 @@ author_name: Example Author
 author_email: author@example.com
 ```
 
-Project directory names may contain dashes, such as `my-study`. Use a valid Python import name for the package, such as `my_study`. With that choice, Cookiecutter creates `methods/my_study/` and notebook imports use `from my_study.paths import …`. No fixed subdirectories are created within `materials` or `results`.
+Project directory names may contain dashes, such as `my-study`. Use a valid Python import name for the package, such as `my_study`.
 
-From the generated project directory, activate your environment and run:
+From the generated project directory, activate your environment and install your package in editable mode. Editable installation lets you change the package code without reinstalling it. Restart the notebook kernel or reload affected modules to use changes to code already imported.
 
 ```bash
 python -m pip install -e .
@@ -133,9 +150,9 @@ Add dependencies to `pyproject.toml` and rerun the installation command when the
 
 ### Build and distribute the Python code
 
-Hatchling is configured to package `methods/package` (or your chosen package name). A wheel contains the Python code, including `paths.py` and the pipeline entry point. Materials, notebooks, and generated results stay in the study workspace. They are not copied into the installed package.
+Hatchling is configured to package `methods/package` (or your chosen package name). A wheel contains the Python code, including `paths.py` and the pipeline entry point. Materials, notebooks, and generated results stay in the project workspace. They are not copied into the installed package.
 
-After installing a wheel, select an existing workspace with `DATA_SCIENCE_PROJECT_ROOT` or `--project-dir`. A wheel cannot infer which study you intend to use. Keep or share that workspace separately when distributing the code. The [Python packaging tutorial](https://packaging.python.org/en/latest/tutorials/packaging-projects/) describes how to build and publish distributions.
+After installing a wheel, select an existing workspace with `DATA_SCIENCE_PROJECT_ROOT` or `--project-dir`. A wheel cannot infer which project you intend to use. Keep or share that workspace separately when distributing the code. The [Python packaging tutorial](https://packaging.python.org/en/latest/tutorials/packaging-projects/) describes how to build and publish distributions.
 
 ## An informal IMRaD-like layout
 
@@ -177,13 +194,13 @@ You can [create an informal layout project using the Cookiecutter](#create-an-in
 
 ### Create an informal IMRaD-like layout Data Science Project using the Cookiecutter
 
-#### Install the Cookiecutter package.
+Install the Cookiecutter package.
 
 ```bash
-pip install cookiecutter
+python -m pip install cookiecutter
 ```
 
-#### Use the Cookiecutter to create an informal IMRaD-like layout project.
+Use the Cookiecutter to create an informal IMRaD-like layout project.
 
 ```bash
 cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout informal_layout_cookiecutter
@@ -205,6 +222,6 @@ Other approaches to organizing data science projects include:
 
 ## Support
 
-If you have a feature request or run into any issues, feel free to submit an [issue](https://github.com/adamjpatterson/the-data-science-project/issues). You’re also welcome to reach out directly to one of the authors.
+If you have a feature request or run into any issues, feel free to submit an [issue](https://github.com/adamjpatterson/the-data-science-project/issues). You’re also welcome to reach out directly to the author.
 
 - [Adam Patterson](https://github.com/adamjpatterson)

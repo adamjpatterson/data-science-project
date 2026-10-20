@@ -18,7 +18,8 @@ Wheel checks confirm that study assets are excluded, require an explicit workspa
 and execute notebooks in a separate study without a source package. Editable
 installs must discover their own workspace from an unrelated current directory.
 Tests also cover invalid and overriding environment settings, CLI precedence,
-and configurable package names.
+and configurable package names. The package entry point must select the expected
+workspace and run without a notebook or Papermill installed.
 Source branches and their existing notebook outputs are never modified.
 Regression checks also cover quoted, backslash-containing, and multiline Unicode
 metadata.

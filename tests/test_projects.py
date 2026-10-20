@@ -190,9 +190,15 @@ def test_formal_distribution(sources, tmp_path, variant):
     assert_paths(python, configured, outside, package, workspace, code_dir)
     checks = "assert all(p.is_absolute() and p.is_dir() for p in (PROJECT_ROOT, MATERIALS_PATH, METHODS_PATH, RESULTS_PATH))"
     execute_notebook(python, configured, workspace / "methods/notebooks/main.ipynb", outside, checks)
+    # The workflow must work without a notebook or Papermill installation.
+    (workspace / "methods/notebooks/main.ipynb").unlink()
+    run(python, "-c", "import importlib.util; assert importlib.util.find_spec('papermill') is None",
+        cwd=outside, env=env)
+    assert run(python, "-m", package, cwd=outside, env=configured).strip() == f"Project root: {workspace}"
     # The CLI overrides even an invalid environment setting before importing paths.
-    run(python, "-m", package, "--project-dir", "../separate-study", cwd=outside,
-        env=dict(env, DATA_SCIENCE_PROJECT_ROOT=str(tmp_path / "invalid")))
+    output = run(python, "-m", package, "--project-dir", "../separate-study", cwd=outside,
+                 env=dict(env, DATA_SCIENCE_PROJECT_ROOT=str(tmp_path / "invalid")))
+    assert output.strip() == f"Project root: {workspace}"
     # Editable installs discover their source workspace from any current directory.
     run(python, "-m", "pip", "install", "--no-deps", "--editable", project, cwd=outside, env=env)
     source_code = project / "methods" / package
@@ -201,7 +207,7 @@ def test_formal_distribution(sources, tmp_path, variant):
     assert_path_error(python, dict(env, DATA_SCIENCE_PROJECT_ROOT=str(tmp_path / "invalid")),
                       outside, package, "must contain")
     execute_notebook(python, env, project / "methods/notebooks/main.ipynb", outside, checks)
-    run(python, "-m", package, cwd=outside, env=env)
+    assert run(python, "-m", package, cwd=outside, env=env).strip() == f"Project root: {project}"
 
 
 @pytest.mark.parametrize("value", [
