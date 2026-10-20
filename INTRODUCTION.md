@@ -10,10 +10,10 @@ The [Formal IMRaD-like Layout](#a-formal-imrad-like-layout) offers an intuitive 
 
 The [Informal IMRaD-like Layout](#an-informal-imrad-like-layout) is a simple and intuitive non-installable Python project organized into `materials`, `methods`, and `results` directories.
 
-This repository provides [Cookiecutter templates](https://github.com/cookiecutter/cookiecutter) for creating these project layouts:
+This repository provides [Cookiecutter](https://github.com/cookiecutter/cookiecutter) templates for creating these project layouts:
 
-- [Formal IMRaD-like Layout](#create-a-formal-imrad-like-layout-data-science-project-using-the-cookiecutter)
-- [Informal IMRaD-like Layout](#create-an-informal-imrad-like-layout-data-science-project-using-the-cookiecutter)
+- Create a [formal IMRaD-like layout](#create-a-formal-imrad-like-layout-data-science-project-using-the-cookiecutter) using the Cookiecutter
+- Create an [informal IMRaD-like layout](#create-an-informal-imrad-like-layout-data-science-project-using-the-cookiecutter) using the Cookiecutter
 
 ## Table of contents
 
