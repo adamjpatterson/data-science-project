@@ -41,6 +41,10 @@ Wheels contain only Python code. Data, notebooks, and results remain in the stud
 workspace. After installing a wheel, select that workspace using the environment
 setting or command-line option above.
 
+The generated package starts at version `0.0.1`, recorded in `__about__.py`.
+Manage that version independently of the template release. Before publishing
+your package, choose its license and add the corresponding file and metadata.
+
 ## Discussion
 
 Describe and interpret the results here.
