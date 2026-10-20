@@ -10,5 +10,5 @@ paths from `<package_name>.paths`, and run its main notebook with
 installed wheels use `DATA_SCIENCE_PROJECT_ROOT` or `--project-dir` to select it.
 
 See the generated README and the
-[project introduction](https://github.com/adamjpatterson/data-science-project/blob/main/INTRODUCTION.md)
+[project introduction](https://github.com/adamjpatterson/the-data-science-project/blob/main/INTRODUCTION.md)
 for details.
