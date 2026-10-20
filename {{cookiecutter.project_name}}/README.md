@@ -26,7 +26,12 @@ workspace directory before importing paths to select a different study. That
 directory must contain `materials`, `methods`, and `results`. Invalid settings
 raise an error; they never silently select another directory.
 
-Run `python -m {{cookiecutter.package_name}}` to execute `methods/notebooks/main.ipynb`, or use
+Run `python -m {{cookiecutter.package_name}}` to call `main()` in your package's
+`__main__.py`. The starter workflow prints the resolved project root. Add your
+workflow there, calling reusable package functions. Notebooks run separately;
+the entry point does not execute them or change the working directory.
+
+To select another workspace, use
 `python -m {{cookiecutter.package_name}} --project-dir /path/to/study`. The command-line option
 takes precedence over the environment setting and accepts relative paths too.
 Path constants are resolved when `{{cookiecutter.package_name}}.paths` is first imported; restart
