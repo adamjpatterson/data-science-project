@@ -12,8 +12,8 @@ The [Informal IMRaD-like Layout](#an-informal-imrad-like-layout) is a simple and
 
 This repository provides [Cookiecutter](https://github.com/cookiecutter/cookiecutter) templates for creating these project layouts:
 
-- Create a [formal IMRaD-like layout](#create-a-formal-imrad-like-layout-data-science-project-using-the-cookiecutter) using the Cookiecutter
-- Create an [informal IMRaD-like layout](#create-an-informal-imrad-like-layout-data-science-project-using-the-cookiecutter) using the Cookiecutter
+- Create a [formal IMRaD-like layout](#create-a-formal-imrad-like-layout-using-the-cookiecutter) using the Cookiecutter
+- Create an [informal IMRaD-like layout](#create-an-informal-imrad-like-layout-using-the-cookiecutter) using the Cookiecutter
 
 ## Table of contents
 
@@ -26,19 +26,19 @@ This repository provides [Cookiecutter](https://github.com/cookiecutter/cookiecu
 
 ## A formal IMRaD-like layout
 
-The formal layout features `materials`, `methods`, and `results` directories at the project root. Their contents are up to you; no particular data, model, or output subdirectories are specified. This approach accommodates a wide range of data science and statistical applications, while offering a project layout that is instantly recognizable to persons working in the science domains.
+The formal layout features `materials`, `methods`, and `results` directories at the project root. Their contents are up to you; no particular data, model, or output subdirectories are specified. This approach accommodates a wide range of data science and statistical applications, while offering an instantly recognizable IMRaD-like project layout.
 
 Use the `materials` directory for source data, intermediary datasets, and models consumed by your analysis. Use the `results` directory for storing the products of your analysis, such as datasets, visualizations, and models. The `methods` directory stores your procedures, including notebooks and the installable package.
 
 ### Features
 
 - A familiar [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like layout.
-- An installable Python package.
+- An installable Python package that facilitates importing user defined modules and utilities.
 - A preconfigured `paths` module useful for navigating the project from a notebook.
 
 ### Explore the project layout
 
-You can [create a formal layout project using the Cookiecutter](#create-a-formal-imrad-like-layout-data-science-project-using-the-cookiecutter).
+You can [create a formal layout using the Cookiecutter](#create-a-formal-imrad-like-layout-using-the-cookiecutter).
 
 #### The directory structure looks like this.
 
@@ -78,13 +78,15 @@ You can [create a formal layout project using the Cookiecutter](#create-a-formal
     └── README.md ⬅ Put your Introduction and Discussion here.
 ```
 
-The default Python package name is `package`. You can specify a different package name using the [Cookiecutter](#create-a-formal-imrad-like-layout-data-science-project-using-the-cookiecutter). Installing the package makes its utilities and workspace paths importable without modifying `sys.path` or setting `PYTHONPATH`.
+The default Python package name is `package`. You can specify a different package name using the [Cookiecutter](#create-a-formal-imrad-like-layout-using-the-cookiecutter). Installing the package makes its utilities and workspace paths importable without modifying `sys.path` or setting `PYTHONPATH`.
 
 ### Workspace paths
 
 The `package.paths` module exports `PROJECT_ROOT`, `MATERIALS_PATH`, `METHODS_PATH`, and `RESULTS_PATH`. Paths are resolved from the project root and returned as absolute paths, so they work independently of the notebook’s current working directory.
 
-An editable installation automatically locates the source project above `methods/package`. Automatic discovery requires `pyproject.toml` and the three workspace directories to exist there. To select another workspace, set this before importing `package.paths` or starting a notebook kernel:
+An editable installation automatically locates the source project above `methods/package`. Automatic discovery requires `pyproject.toml` and the three workspace directories to exist there.
+
+To select another workspace, set this before importing `package.paths` or starting a notebook kernel:
 
 ```bash
 export DATA_SCIENCE_PROJECT_ROOT=/absolute/path/to/project
@@ -112,7 +114,7 @@ python -m package --project-dir /path/to/project
 
 This option overrides `DATA_SCIENCE_PROJECT_ROOT` and accepts relative paths. It selects the workspace used by `package.paths` without changing the working directory. Use those absolute paths when reading materials or writing results.
 
-### Create a formal IMRaD-like layout Data Science Project using the Cookiecutter
+### Create a formal IMRaD-like layout using the Cookiecutter
 
 Install the Cookiecutter package.
 
@@ -120,7 +122,7 @@ Install the Cookiecutter package.
 python -m pip install cookiecutter
 ```
 
-Use the Cookiecutter to create a formal IMRaD-like layout project.
+Use the Cookiecutter to create a formal IMRaD-like layout.
 
 ```bash
 cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout formal-cookiecutter-v1.0.0
@@ -157,7 +159,7 @@ After installing a wheel, select an existing workspace with `DATA_SCIENCE_PROJEC
 
 ## An informal IMRaD-like layout
 
-The Informal [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like Layout is a useful and intuitive project layout. It also serves as an introduction to the IMRaD-like layouts for data science projects. It isn't installable; however, its IMRaD-like naming convention makes its organization immediately recognizable to persons working in the science domains.
+The Informal [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like Layout is a useful and intuitive project layout. It also serves as an introduction to the [formal IMRaD-like layout](#a-formal-imrad-like-layout). It isn't installable; however, its IMRaD-like naming convention makes its organization immediately recognizable to persons working in the science domains.
 
 ### Features
 
@@ -165,7 +167,7 @@ The Informal [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like Layout is a usefu
 
 ### Explore the project layout
 
-You can [create an informal layout project using the Cookiecutter](#create-an-informal-imrad-like-layout-data-science-project-using-the-cookiecutter).
+You can [create an informal layout project using the Cookiecutter](#create-an-informal-imrad-like-layout-using-the-cookiecutter).
 
 #### The directory structure looks like this.
 
@@ -193,7 +195,7 @@ You can [create an informal layout project using the Cookiecutter](#create-an-in
     └── .gitignore
 ```
 
-### Create an informal IMRaD-like layout Data Science Project using the Cookiecutter
+### Create an informal IMRaD-like layout using the Cookiecutter
 
 Install the Cookiecutter package.
 
