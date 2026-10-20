@@ -4,7 +4,7 @@ The [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like Python project templates f
 
 ## Introduction
 
-In the data science domain, projects are sometimes shared as an informal assemblage of scripts. This repository proposes two familiar [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like layouts that can be used for organizing a data science project. This approach is aimed at meeting the requirements of a wide range of data science applications while still offering a layout that is immediately recognizable by persons working in the science domains.
+In the data science domain, projects are sometimes shared as an informal assemblage of scripts. This repository proposes two familiar [IMRaD](https://en.wikipedia.org/wiki/IMRAD)-like layouts that can be used for organizing your data science or statistical analysis. This IMRaD-inspired approach is aimed at meeting the requirements of a wide range of data science and statistical applications while still offering a layout that is immediately recognizable by persons working in the science domains.
 
 The [Formal IMRaD-like Layout](#a-formal-imrad-like-layout) offers an intuitive and familiar project layout. It organizes your project into `materials`, `methods`, and `results` directories. It adds an installable Python package within `methods`, while keeping `materials` and `results` in the project workspace.
 
