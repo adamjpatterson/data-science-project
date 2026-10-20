@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "documentation_tag": "v1.0.0",
+  "templates": {
+    "formal": {
+      "branch": "formal_flat_layout_cookiecutter",
+      "tag": "formal-cookiecutter-v1.0.0",
+      "commit": "6e79fe45b044d306c04547b2a7703358ab5b8dac"
+    },
+    "informal": {
+      "branch": "informal_layout_cookiecutter",
+      "tag": "informal-cookiecutter-v1.0.0",
+      "commit": "13bbac2a27e9b502c6b66aeb43ec67096f1ab6ce"
+    }
+  }
+}

@@ -19,6 +19,7 @@ This repository provides [Cookiecutter templates](https://github.com/cookiecutte
 
 - [A formal IMRaD-like layout](#a-formal-imrad-like-layout)
 - [An informal IMRaD-like layout](#an-informal-imrad-like-layout)
+- [Versioning](#versioning)
 - [Development checks](#development-checks)
 - [Other solutions](#other-solutions)
 - [Support](#support)
@@ -122,7 +123,7 @@ python -m pip install cookiecutter
 Use the Cookiecutter to create a formal IMRaD-like layout project.
 
 ```bash
-cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout formal_flat_layout_cookiecutter
+cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout formal-cookiecutter-v1.0.0
 ```
 
 The form lets you configure the project directory, Python package, repository URL, description, and author information:
@@ -203,11 +204,21 @@ python -m pip install cookiecutter
 Use the Cookiecutter to create an informal IMRaD-like layout project.
 
 ```bash
-cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout informal_layout_cookiecutter
+cookiecutter https://github.com/adamjpatterson/the-data-science-project.git --checkout informal-cookiecutter-v1.0.0
 ```
 
 Open `methods/main.ipynb` with `methods` as the working directory. Its first cell uses `pathlib` to define absolute paths to the project root and its three
 directories; no package installation is needed.
+
+## Versioning
+
+The current template release is **1.0.0**. The commands above select its fixed
+release tags. Both templates share a release number; generated projects have
+independent version histories. Formal Python packages start at `0.0.1` in
+`__about__.py`.
+
+See the [versioning policy and release workflow](https://github.com/adamjpatterson/the-data-science-project/blob/v1.0.0/VERSIONING.md)
+for compatibility rules, template tags, and development branches.
 
 ## Development checks
 

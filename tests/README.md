@@ -40,3 +40,21 @@ establish compatibility with every Python version advertised by the templates.
 The two template branches are independent and long-lived.
 They are not feature branches to merge into `main`; `main` holds the shared
 documentation and tests.
+
+## Reproducing version 1.0.0
+
+Check out `v1.0.0` in a separate clone and install `requirements-test.txt` as above.
+Export the template tags into temporary directories, then run:
+
+```bash
+git fetch origin --tags
+release_sources=$(mktemp -d)
+mkdir "$release_sources/formal_flat_layout_cookiecutter" "$release_sources/informal_layout_cookiecutter"
+git archive formal-cookiecutter-v1.0.0 | tar -x -C "$release_sources/formal_flat_layout_cookiecutter"
+git archive informal-cookiecutter-v1.0.0 | tar -x -C "$release_sources/informal_layout_cookiecutter"
+PROJECT_TEST_SOURCES="$release_sources" /tmp/data-science-project-tests/bin/python -m pytest -v tests
+```
+
+This selects the released template sources even after the development branches
+advance. Dependencies are resolved at test time; the release does not include a
+lockfile for third-party packages.
